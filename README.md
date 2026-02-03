@@ -1,2 +1,11 @@
-# EcoNet-BeeSafeAI
-Focus on real, non-invasive, habitat-centered interventions to reverse honey bee decline without any direct manipulation of bee bodies or nervous systems. Make a huge-difference and protect the honeybees, their rights are more-important than ours!
+EcoNet-BeeSafeAI/
+├── src/
+│   └── EcoNet.BeeSafeAI/
+│       └── ThermalValidator/
+│           └── HiveThermalCorridorValidator.cs
+├── tests/
+│   └── ThermalValidatorTests.cs
+├── qpudatashards/
+├── .github/workflows/ci-cd.yml
+├── README.md
+└── EcoNet.BeeSafeAI.sln
