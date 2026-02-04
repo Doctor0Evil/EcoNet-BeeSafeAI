@@ -1,0 +1,16 @@
+[package]
+name = "hive_inner_ledger"
+version = "0.1.0"
+edition = "2021"
+description = "Sovereign ledger for bee cybernetics with RoH invariants"
+authors = ["Cybocrypto-Enhancer"]
+license = "MIT"
+repository = "https://github.com/Techgician/hive_inner_ledger"
+keywords = ["cybernetics", "bee-sovereignty", "eco-corridors", "rust-aln"]
+categories = ["science", "simulation"]
+
+[dependencies]
+# No external deps for sovereignty; pure std for bio-compatibility
+
+[dev-dependencies]
+# For testing only
