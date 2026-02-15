@@ -1,0 +1,108 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://neuroeco.example.org/vocab/neuroecoidentity/v1",
+    "https://neuroeco.example.org/vocab/ceim/v1",
+    "https://neuroeco.example.org/vocab/nanokarma/v1"
+  ],
+  "type": "BeeExergyPolytope",
+  "id": "urn:extension:bee-exergy-polytope:v1",
+  "dependsOn": [
+    "CEIM",
+    "NanoKarma",
+    "BeeWeightedPolytope"
+  ],
+  "description": "Exergy-normalized bee and arthropod service envelope for EcoAdmissible / BeeAdmissible gating, using only physical mass and energy flows.",
+  "inputs": {
+    "noNeuralInputsForGovernance": true,
+    "components": [
+      {
+        "name": "M_pollen_exergy",
+        "label": "Exergy-normalized pollination service",
+        "unit": "MJ ha^-1 day^-1",
+        "source": "Smart hive weight and thermal sensors converted to exergy using published metabolic factors.",
+        "physicsLayer": true,
+        "policyLayer": false
+      },
+      {
+        "name": "M_prey_exergy",
+        "label": "Exergy-normalized pest control service",
+        "unit": "MJ ha^-1 day^-1",
+        "source": "Spider/wasp web tension and load-cell sensors converted to prey biomass and exergy.",
+        "physicsLayer": true,
+        "policyLayer": false
+      }
+    ],
+    "linkToStateVector": {
+      "outerDomainIndexMap": {
+        "M_pollen_exergy":  "x[k_pollen_exergy]",
+        "M_prey_exergy":    "x[k_prey_exergy]"
+      }
+    }
+  },
+  "polytope": {
+    "name": "P_bee_exergy",
+    "definition": "P_bee_exergy = { x ∈ R^n : A_bee_exergy · x ≤ b_bee_exergy }",
+    "matrixA": [
+      {
+        "id": "row_min_pollen",
+        "row": "…0 0 1 0 0…",
+        "comment": "Lower bound on M_pollen_exergy to avoid collapse of pollination service.",
+        "physicsLayer": false,
+        "policyLayer": true
+      },
+      {
+        "id": "row_min_prey",
+        "row": "…0 0 0 1 0…",
+        "comment": "Lower bound on M_prey_exergy to maintain pest control service.",
+        "physicsLayer": false,
+        "policyLayer": true
+      },
+      {
+        "id": "row_joint_tradeoff",
+        "row": "…0 0 α β 0…",
+        "comment": "Joint lower bound α·M_pollen_exergy + β·M_prey_exergy ≥ service_floor, allowing limited trade-off.",
+        "physicsLayer": false,
+        "policyLayer": true
+      }
+    ],
+    "vectorB": [
+      {
+        "ref": "row_min_pollen",
+        "bound": "M_pollen_exergy_min",
+        "unit": "MJ ha^-1 day^-1"
+      },
+      {
+        "ref": "row_min_prey",
+        "bound": "M_prey_exergy_min",
+        "unit": "MJ ha^-1 day^-1"
+      },
+      {
+        "ref": "row_joint_tradeoff",
+        "bound": "service_floor_exergy",
+        "unit": "MJ ha^-1 day^-1"
+      }
+    ]
+  },
+  "predicates": {
+    "BeeExergyAdmissible": {
+      "definition": "BeeExergyAdmissible(x_proj) ⇔ A_bee_exergy · x_proj ≤ b_bee_exergy",
+      "inputs": [
+        "x_proj[k_pollen_exergy]",
+        "x_proj[k_prey_exergy]"
+      ],
+      "forbiddenInputs": [
+        "neuralTelemetry",
+        "affectiveInferences",
+        "cognitiveScores"
+      ]
+    }
+  },
+  "wiringIntoGovernance": {
+    "ActionAllowed": "ActionAllowed := EcoAdmissible(x_proj) ∧ BeeAdmissible(x_proj) ∧ BeeExergyAdmissible(x_proj) ∧ KarmaAdmissible(K_person_proj)",
+    "notes": [
+      "All terms in BeeExergyAdmissible are functions of physically measured mass and energy flows.",
+      "No neural, belief, or identity variables are permitted in this operator by construction."
+    ]
+  }
+}
